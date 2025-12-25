@@ -1,6 +1,6 @@
 ﻿namespace MultithreadingApp
 {
-    partial class Form1
+    partial class frmMultiThread
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMultiThread));
             btnStart = new Button();
             lblStatus = new Label();
             btnStop = new Button();
@@ -152,7 +152,7 @@
             btnReset.UseVisualStyleBackColor = true;
             btnReset.Click += btnReset_Click;
             // 
-            // Form1
+            // frmMultiThread
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -164,8 +164,8 @@
             Controls.Add(btnStop);
             Controls.Add(lblStatus);
             Controls.Add(btnStart);
-            Name = "Form1";
-            Text = "Form1";
+            Name = "frmMultiThread";
+            Text = "Multithread App";
             ((System.ComponentModel.ISupportInitialize)dgvUser).EndInit();
             ResumeLayout(false);
             PerformLayout();

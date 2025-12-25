@@ -5,12 +5,12 @@ using Microsoft.Data.SqlClient;
 
 namespace MultithreadingApp
 {
-    public partial class Form1 : Form
+    public partial class frmMultiThread : Form
     {
         // Cancellation token source to manage task cancellation
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         BusinessAndFillControls businessAndFillControls = new BusinessAndFillControls();
-        public Form1()
+        public frmMultiThread()
         {
             InitializeComponent();
         }
