@@ -21,27 +21,34 @@ namespace MultithreadingApp
         /// <param name="e"></param>
         private async void button1_Click(object sender, EventArgs e)
         {
+            tokenSource?.Dispose();
             tokenSource = new CancellationTokenSource();
-            writelabel("Its start");
-            await Task.Run(() =>
+            WriteLabel("Its start");
+            try
             {
-                AddSubTask();
-            }, tokenSource.Token).ConfigureAwait(false);
+                await AddSubTaskAsync();
+                WriteLabel("Completed");
+            }
+            catch (OperationCanceledException ex)
+            {
+                WriteLabel(ex.Message);
+            }
+            catch (Exception ex) {
+                WriteLabel($"Error: {ex.Message}");
+            }
+          
         }
         /// <summary>
         /// Background Task method that performs work and checks for cancellation
         /// </summary>
-        private void AddSubTask()
+        private async Task AddSubTaskAsync()
         {
             for (int i = 0; i < 1000; i++)
             {
-                Thread.Sleep(1000);
-                if (tokenSource.IsCancellationRequested)
-                {
-                    writelabel($"Its cancelled on {i.ToString()}");
-                    return;
-                }
-                writelabel($"Its executed for {i.ToString()}");
+                if (tokenSource.IsCancellationRequested) throw new Exception($"Cancelled on {i.ToString()}");
+                await Task.Delay(1000);
+                WriteLabel($"Count: {i + 1}");  
+               
             }
 
         }
@@ -52,12 +59,18 @@ namespace MultithreadingApp
         /// method when updating the label from a background thread to avoid cross-thread operation
         /// exceptions.</remarks>
         /// <param name="s">The text to display in the label control. Can be null or empty to clear the label.</param>
-        private void writelabel(string s)
+        private void WriteLabel(string s)
         {
-            lblStatus.Invoke(() =>
+            if (lblStatus.InvokeRequired)
             {
+                lblStatus.Invoke(() =>
+                {
+                    lblStatus.Text = s;
+                });
+            }
+            else {
                 lblStatus.Text = s;
-            });
+            }
         }
 
 
@@ -68,10 +81,19 @@ namespace MultithreadingApp
         /// <param name="e">An EventArgs object that contains the event data.</param>
         private async void btnGetData_Click(object sender, EventArgs e)
         {
-            await Task.Run(() =>
+
+            IEnumerable<UserDto> userData = await businessAndFillControls.GetUserData(tokenSource.Token);
+            if (dgvUser.InvokeRequired)
             {
-                businessAndFillControls.FillGrid(dgvUser);
-            }).ConfigureAwait(false);
+                this.Invoke(() =>
+                {
+                    dgvUser.DataSource = userData.ToList();
+                });
+            }
+            else
+            {
+                dgvUser.DataSource = userData.ToList();
+            }
         }
         /// <summary>
         /// Handles the Click event of the Cancel button to request cancellation of the current operation.
@@ -83,14 +105,14 @@ namespace MultithreadingApp
         /// <param name="e">An EventArgs object that contains the event data.</param>
         private void btnStop_Click(object sender, EventArgs e)
         {
-            tokenSource.Cancel();
+            tokenSource?.Cancel();
         }
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            tokenSource.Cancel();
+            tokenSource?.Cancel();
             lblStatus.Text = string.Empty;
-            dgvUser.DataSource = null;
+            dgvUser.DataSource = new List<UserDto>();
         }
     }
 }
